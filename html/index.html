@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, charset='utf-8'">
+    <head>
+        <link rel="stylesheet" href="style.css">
+    </head>
+</head>
+<body>
+    <h1 class="title">Dashboard</h1>
+    <div id="stats">
+        <h2>Temperature: <span id="temperature"></span>&#176;F</h2>
+        <h2>Humidity: <span id="humidity"></span>%</h2>
+    </div>
+    <div id="iframe-container">
+        <iframe id="igraph" seamless="seamless"
+        src="weather-graph.html"></iframe>
+    </div>
+</body>
+</html>
+
+<script>
+    // update weather data
+    fetch('data.json')
+        .then(response => response.json())
+        .then(data => {
+            // Update the temperature and humidity in the h1 element
+            document.getElementById('temperature').textContent = data.temperature;
+            document.getElementById('humidity').textContent = data.humidity;
+        })
+        .catch(error => console.error(error));
+</script>
