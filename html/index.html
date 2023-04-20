@@ -48,7 +48,7 @@
                 String.fromCharCode("176") + "F Outside";
             document.getElementById('humidity_in').textContent = data.humidity_in + "% Inside";
             document.getElementById('humidity_out').textContent = data.humidity_out + "% Outside";
-            document.getElementById('steps').textContent = data.steps + "% Outside";
+            document.getElementById('steps').textContent = data.steps + ` (${data.steps / 50}%)`;
         })
         .catch(error => console.error(error));
 </script>
