@@ -3,8 +3,9 @@
 
 <head>
     <title>Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, charset='utf-8'">
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
     <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico">
+
     <head>
         <link rel="stylesheet" href="style.css">
     </head>
@@ -41,14 +42,15 @@
     fetch('data.json')
         .then(response => response.json())
         .then(data => {
+            const steps_percentage = Number(data.steps.replace(",", "")) / 50
             // Update the temperature and humidity in the h1 element
             document.getElementById('temperature_in').textContent = data.temperature_in +
                 String.fromCharCode("176") + "F Inside";
-                document.getElementById('temperature_out').textContent = data.temperature_out +
+            document.getElementById('temperature_out').textContent = data.temperature_out +
                 String.fromCharCode("176") + "F Outside";
             document.getElementById('humidity_in').textContent = data.humidity_in + "% Inside";
             document.getElementById('humidity_out').textContent = data.humidity_out + "% Outside";
-            document.getElementById('steps').textContent = data.steps + "% Outside";
+            document.getElementById('steps').textContent = data.steps + ` (${steps_percentage}%)`;
         })
         .catch(error => console.error(error));
 </script>
