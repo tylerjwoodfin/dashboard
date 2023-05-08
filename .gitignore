@@ -1,2 +1,4 @@
 html/data.json
 html/weather-graph.html
+node_modules
+.cache
