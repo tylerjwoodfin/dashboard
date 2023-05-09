@@ -17,7 +17,8 @@
   },
   "dependencies": {
     "@mdx-js/react": "^2.3.0",
-    "gatsby": "^5.3.3",
+    "chart.js": "^4.3.0",
+    "gatsby": "^5.9.0",
     "gatsby-plugin-image": "^3.9.0",
     "gatsby-plugin-manifest": "^5.9.0",
     "gatsby-plugin-mdx": "^5.9.0",
@@ -25,14 +26,19 @@
     "gatsby-plugin-sharp": "^5.9.0",
     "gatsby-source-filesystem": "^5.9.0",
     "gatsby-transformer-sharp": "^5.9.0",
+    "moment": "^2.29.4",
+    "plotly.js": "^2.22.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-plotly.js": "^2.6.0",
     "sass": "^1.62.1"
   },
   "devDependencies": {
+    "@types/chart.js": "^2.9.37",
     "@types/node": "^18.16.5",
     "@types/react": "^18.2.5",
     "@types/react-dom": "^18.2.4",
+    "@types/react-plotly.js": "^2.6.0",
     "typescript": "^5.0.4"
   }
 }

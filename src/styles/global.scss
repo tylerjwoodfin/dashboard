@@ -1,3 +1,78 @@
+$mobile: 768px; // set breakpoint for mobile devices
+
 body {
-    background-color: #0A0A0A;
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", sans-serif;
+  background-color: #1f1f1f; // set dark background color
+  color: #fff; // set font color
 }
+
+.title {
+  text-align: center;
+  padding-top: 20px;
+  margin-bottom: 50px;
+}
+
+.stats-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stats {
+  width: calc(33.33% - 20px);
+  padding: 10px;
+  text-align: center;
+  margin-bottom: 20px;
+
+  @media only screen and (max-width: $mobile) {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 30px;
+  }
+}
+
+h2 {
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+span {
+  display: block;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+#temperature_in {
+  color: #FFD700;
+}
+
+#temperature_out {
+  color: #FFA500;
+}
+
+#humidity_in {
+  color: #00BFFF;
+}
+
+#humidity_out {
+  color: #1E90FF;
+}
+
+#steps {
+  color: #ADFF2F;
+}
+
+.chart-container {
+    margin: 0 auto;
+    max-width: 800px;
+    width: 100%;
+  
+    @media only screen and (max-width: $mobile) {
+      max-width: 95%;
+      overflow-x: scroll;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
