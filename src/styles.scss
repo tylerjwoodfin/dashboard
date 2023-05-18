@@ -73,14 +73,12 @@ span {
 }
 
 .chart-container {
-    text-align: center;
-    margin: 0 auto;
-    max-width: 800px;
-    width: 100%;
-  
-    @media only screen and (max-width: $mobile) {
-      max-width: 95%;
-      overflow-x: scroll;
-      -webkit-overflow-scrolling: touch;
-    }
+  text-align: center;
+  margin: 0 auto;
+
+  @media only screen and (max-width: $mobile) {
+    width: 90%;
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
   }
+}

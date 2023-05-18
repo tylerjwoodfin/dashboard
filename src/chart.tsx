@@ -5,11 +5,28 @@ import { Layout } from "plotly.js";
 
 const MyPlot: React.FC = () => {
   const [data, setData] = useState<any[]>([]);
+  const [chartWidth, setChartWidth] = useState<number>(0);
 
   useEffect(() => {
     const today = moment().format("YYYY-MM-DD");
     const yesterday = moment().subtract(1, "day").format("YYYY-MM-DD");
     const dayBeforeYesterday = moment().subtract(2, "day").format("YYYY-MM-DD");
+
+    // chart width
+    const calculateChartWidth = () => {
+      const screenWidth = window.innerWidth;
+      const desiredWidth = screenWidth < 768 ? screenWidth * 0.9 : screenWidth * 0.65;
+      setChartWidth(desiredWidth);
+    };
+
+    calculateChartWidth();
+
+    // Update chart width on window resize
+    const handleResize = () => {
+      calculateChartWidth();
+    };
+
+    window.addEventListener('resize', handleResize);
 
     Promise.all([
       fetch(`weather/weather ${today}.json`),
@@ -25,6 +42,10 @@ const MyPlot: React.FC = () => {
         combinedData.sort((a, b) => moment(a['timestamp']).diff(moment(b['timestamp'])));
         setData(combinedData);
       });
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const thirty_six_hours_ago = moment().subtract(36, "hours");
@@ -83,6 +104,7 @@ const MyPlot: React.FC = () => {
       fixedrange: true,
     },
     autosize: true,
+    width: chartWidth,
     legend: { y: 1.15, orientation: "h" },
   };
 

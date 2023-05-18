@@ -21,6 +21,7 @@ yarn-debug.log*
 yarn-error.log*
 
 html/data.json
+public/data.json
 html/weather-graph.html
 node_modules
 .cache
