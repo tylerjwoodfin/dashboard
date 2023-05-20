@@ -15,7 +15,7 @@ body {
   color: #fff; // set font color
 }
 
-.title {
+.dashboard-title {
   text-align: center;
   padding-top: 20px;
   margin-bottom: 50px;
@@ -25,10 +25,9 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
 }
 
-.stats {
+.stat {
   width: calc(33.33% - 20px);
   padding: 10px;
   text-align: center;

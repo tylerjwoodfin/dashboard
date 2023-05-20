@@ -25,3 +25,4 @@ public/data.json
 html/weather-graph.html
 node_modules
 .cache
+public/steps.md

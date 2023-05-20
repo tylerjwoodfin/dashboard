@@ -1,7 +1,40 @@
 import React, { useEffect, useState } from "react";
 import Chart from "./chart";
+import moment from "moment";
 import "./styles.scss";
 import { Tab, Tabs } from "@mui/material";
+
+export interface IWeatherData {
+  temperature: number;
+  timestamp: string;
+  humidity: number;
+  weather_data: {
+    current_conditions: string;
+    current_humidity: number;
+    current_temperature: number;
+    tomorrow_conditions: string;
+    tomorrow_high: number;
+    tomorrow_low: number;
+    tomorrow_sunrise: string;
+    tomorrow_sunset: string;
+  };
+}
+
+export const convertToTemperatureInFahrenheit = (temperature: number): number => {
+  const fahrenheit = (temperature * 9) / 5 + 32;
+  return Math.round(fahrenheit * 10) / 10;
+};
+
+const styles = {
+  tab: {
+    active: {
+      color: "#3e7"
+    },
+    inactive: {
+      color: "#fff"
+    }
+  }
+}
 
 const App: React.FC = () => {
   const [temperatureIn, setTemperatureIn] = useState<string>("");
@@ -9,28 +42,15 @@ const App: React.FC = () => {
   const [humidityIn, setHumidityIn] = useState<string>("");
   const [humidityOut, setHumidityOut] = useState<string>("");
   const [steps, setSteps] = useState<string>("");
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState<number>(0);
 
-  const styles = {
-    tab: {
-      active: {
-        color: "#3e7"
-      },
-      inactive: {
-        color: "#fff"
-      }
-    }
-
-  }
-
-  // Helper function to determine the color based on temperature value
   const determineTemperatureColor = (temperature: string): string => {
     const value = parseFloat(temperature);
-    
+
     if (value < 30) {
-      return "#0039e6"
+      return "#0039e6";
     } else if (value < 40) {
-      return "#00e699"
+      return "#00e699";
     } else if (value < 50) {
       return "#00BFFF";
     } else if (value < 60) {
@@ -53,41 +73,76 @@ const App: React.FC = () => {
     event.preventDefault();
   };
 
-  useEffect(() => {
-    fetch('data.json')
-      .then(response => response.json())
-      .then(data => {
-        const percentage = Number(data.steps.replace(",", "")) / 50;
-
-        setTemperatureIn(data.temperature_in + String.fromCharCode(176) + "F Inside");
-        setTemperatureOut(data.temperature_out + String.fromCharCode(176) + "F Outside");
-        setHumidityIn(data.humidity_in + "% Inside");
-        setHumidityOut(data.humidity_out + "% Outside");
-        setSteps(data.steps + ` (${percentage}%)`);
+  const fetchStepsData = () => {
+    fetch("steps.md")
+      .then((response) => response.text())
+      .then((data) => {
+        const steps = Number(data.split(" ")[0]);
+        setSteps(steps + ` (${steps / 50}%)`);
       })
-      .catch(error => console.error(error));
+      .catch((error) => console.error("Error fetching steps data:", error));
+  };
+
+  const fetchWeatherData = () => {
+    const today = moment().format("YYYY-MM-DD");
+    fetch(`weather/weather ${today}.json`)
+      .then((response) => response.text())
+      .then((text) => {
+        const data = JSON.parse(`[${text.slice(0, -1)}]`);
+        const weatherData: IWeatherData = data[data.length - 1];
+
+        setTemperatureIn(
+          convertToTemperatureInFahrenheit(weatherData.temperature) +
+          String.fromCharCode(176) +
+          "F Inside"
+        );
+        setTemperatureOut(
+          convertToTemperatureInFahrenheit(weatherData.weather_data.current_temperature - 273.15) +
+          String.fromCharCode(176) +
+          "F Outside"
+        );
+        setHumidityIn(
+          Math.round(weatherData.humidity * 10) / 10 + "% Inside"
+        );
+        setHumidityOut(weatherData.weather_data.current_humidity + "% Outside");
+      })
+      .catch((error) => {
+        console.error("Error fetching weather data:", error);
+      });
+  };
+
+  useEffect(() => {
+    fetchStepsData();
+    fetchWeatherData();
   }, []);
 
   return (
-    <div className="container">
-      <h1 className="title">Dashboard</h1>
+    <div className="dashboard-container">
+      <h1 className="dashboard-title">Dashboard</h1>
       <div className="stats-container">
-        <div className="stats">
+        <div className="stat">
           <h2>Temperature</h2>
-          <span id="temperature_in" style={{ color: determineTemperatureColor(temperatureIn) }}
-          >{temperatureIn}</span>
-          <span id="temperature_out" style={{ color: determineTemperatureColor(temperatureOut) }}
-          >{temperatureOut}</span>
+          <span
+            id="temperature_in"
+            style={{ color: determineTemperatureColor(temperatureIn) }}
+          >
+            {temperatureIn}
+          </span>
+          <span
+            id="temperature_out"
+            style={{ color: determineTemperatureColor(temperatureOut) }}
+          >
+            {temperatureOut}
+          </span>
         </div>
-        <div className="stats">
+        <div className="stat">
           <h2>Humidity</h2>
           <span id="humidity_in">{humidityIn}</span>
           <span id="humidity_out">{humidityOut}</span>
         </div>
-        <div className="stats">
+        <div className="stat">
           <h2>Steps Today</h2>
           <span id="steps">{steps}</span>
-          <span id="placeholder"></span>
         </div>
       </div>
       <Tabs
@@ -96,11 +151,20 @@ const App: React.FC = () => {
         indicatorColor="primary"
         textColor="primary"
         centered
-        TabIndicatorProps={{ style: { background: '#3e7' } }}
+        TabIndicatorProps={{ style: { background: "#3e7" } }}
       >
-        <Tab label="Temperatures" style={value === 0 ? styles.tab.active : styles.tab.inactive} />
-        <Tab label="Spotify" style={value === 1 ? styles.tab.active : styles.tab.inactive} />
-        <Tab label="Bedtime" style={value === 2 ? styles.tab.active : styles.tab.inactive} />
+        <Tab
+          label="Temperatures"
+          style={value === 0 ? styles.tab.active : styles.tab.inactive}
+        />
+        <Tab
+          label="Spotify"
+          style={value === 1 ? styles.tab.active : styles.tab.inactive}
+        />
+        <Tab
+          label="Bedtime"
+          style={value === 2 ? styles.tab.active : styles.tab.inactive}
+        />
       </Tabs>
       <div className="chart-container">
         {value === 0 && <Chart />}

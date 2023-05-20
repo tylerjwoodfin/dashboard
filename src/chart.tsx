@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import Plot from "react-plotly.js";
 import moment from "moment";
 import { Layout } from "plotly.js";
+import { IWeatherData, convertToTemperatureInFahrenheit } from "./App"
 
-const MyPlot: React.FC = () => {
-  const [data, setData] = useState<any[]>([]);
+const Chart: React.FC = () => {
+  const [data, setData] = useState<IWeatherData[]>([]);
   const [chartWidth, setChartWidth] = useState<number>(0);
 
   useEffect(() => {
@@ -28,67 +29,69 @@ const MyPlot: React.FC = () => {
 
     window.addEventListener('resize', handleResize);
 
-    Promise.all([
-      fetch(`weather/weather ${today}.json`),
-      fetch(`weather/weather ${yesterday}.json`),
-      fetch(`weather/weather ${dayBeforeYesterday}.json`)
-    ])
-      .then((responses) => {
-        return Promise.all(responses.map(response => response.text()));
-      })
-      .then((texts) => {
-        const parsedData = texts.map(text => JSON.parse(`[${text.slice(0, -1)}]`));
+    const fetchData = async () => {
+      try {
+        const [todayResponse, yesterdayResponse, dayBeforeYesterdayResponse] = await Promise.all([
+          fetch(`weather/weather ${today}.json`),
+          fetch(`weather/weather ${yesterday}.json`),
+          fetch(`weather/weather ${dayBeforeYesterday}.json`)
+        ]);
+
+        const [todayText, yesterdayText, dayBeforeYesterdayText] = await Promise.all([
+          todayResponse.text(),
+          yesterdayResponse.text(),
+          dayBeforeYesterdayResponse.text()
+        ]);
+
+        const parsedData = [todayText, yesterdayText, dayBeforeYesterdayText].map(text => JSON.parse(`[${text.slice(0, -1)}]`));
         const combinedData = [].concat(...parsedData);
         combinedData.sort((a, b) => moment(a['timestamp']).diff(moment(b['timestamp'])));
         setData(combinedData);
-      });
+      } catch (error) {
+        console.error('Error fetching weather data:', error);
+      }
+    };
+
+    fetchData();
 
     return () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
 
-  const thirty_six_hours_ago = moment().subtract(36, "hours");
+  const thirtySixHoursAgo = moment().subtract(36, "hours");
   const timestamps: Date[] = [];
-  const temperatures_indoor_celsius: number[] = [];
-  const temperatures_outdoor_kelvin: number[] = [];
+  const temperaturesIndoorCelsius: number[] = [];
+  const temperaturesOutdoorKelvin: number[] = [];
   const humidities: number[] = [];
 
   for (const obs of data) {
-    const ts = moment(obs.timestamp);
-    if (ts >= thirty_six_hours_ago) {
+    const ts = moment(obs['timestamp']);
+    if (ts.isSameOrAfter(thirtySixHoursAgo)) {
       timestamps.push(ts.toDate());
-      temperatures_indoor_celsius.push(obs.temperature);
-      temperatures_outdoor_kelvin.push(obs.weather_data?.current_temperature)
+      temperaturesIndoorCelsius.push(obs.temperature);
+      temperaturesOutdoorKelvin.push(obs.weather_data?.current_temperature);
       humidities.push(obs.humidity);
     }
   }
 
-  // Convert Celsius to Fahrenheit
-  const temperatures_indoor_fahrenheit = temperatures_indoor_celsius.map(
-    (temp) => temp * 1.8 + 32
-  );
+  const temperaturesIndoorFahrenheit = temperaturesIndoorCelsius.map(convertToTemperatureInFahrenheit);
+  const temperaturesOutdoorFahrenheit = temperaturesOutdoorKelvin.map((temp) => convertToTemperatureInFahrenheit(temp - 273.15));
 
-  const temperatures_outdoor_fahrenheit = temperatures_outdoor_kelvin.map(
-    (temp) => (temp - 273.15) * 1.8 + 32
-  );
-
-  // Create traces
   const trace1 = {
     x: timestamps,
-    y: temperatures_indoor_fahrenheit.map((temp) => Number(temp)), // convert to number type
+    y: temperaturesIndoorFahrenheit.map((temp) => Number(temp)), // convert to number type
     name: "Indoor Temperature (F)",
     yaxis: "y1",
   };
 
   const trace2 = {
     x: timestamps,
-    y: temperatures_outdoor_fahrenheit.map((temp) => Number(temp)), // convert to number type
+    y: temperaturesOutdoorFahrenheit.map((temp) => Number(temp)), // convert to number type
     name: "Outdoor Temperature (F)",
     yaxis: "y1",
   };
 
-  // Set layout
   const layout: Partial<Layout> = {
     title: "Temperatures, Past 36 Hours",
     plot_bgcolor: "#1f1f1f",
@@ -97,12 +100,7 @@ const MyPlot: React.FC = () => {
     },
     paper_bgcolor: "#1f1f1f",
     xaxis: { title: "Time" },
-    yaxis: {
-      title: "Temperature (F)",
-      side: "right",
-      autorange: true,
-      fixedrange: true,
-    },
+    yaxis: { title: "Temperature (Fahrenheit)", side: "right", autorange: true, fixedrange: true },
     autosize: true,
     width: chartWidth,
     legend: { y: 1.15, orientation: "h" },
@@ -111,4 +109,4 @@ const MyPlot: React.FC = () => {
   return <Plot data={[trace1, trace2]} layout={layout} />;
 };
 
-export default MyPlot;
+export default Chart;
