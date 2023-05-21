@@ -6,7 +6,9 @@ import { Layout } from "plotly.js";
 const ChartSpotify: React.FC = () => {
   const [data, setData] = useState<{ date: string; value: number }[]>([]);
   const [chartWidth, setChartWidth] = useState<number>(0);
-  const [chartType, setChartType] = useState<"daily" | "weekly" | "monthly">("weekly");
+  const [chartType, setChartType] = useState<"daily" | "weekly" | "monthly" | "genres">("weekly");
+  const [genreData, setGenreData] = useState<{ genre: string; count: number }[]>([]);
+  const [showGenres, setShowGenres] = useState<boolean>(false);
 
   const buttonStyle = {
     padding: "8px 16px",
@@ -18,6 +20,39 @@ const ChartSpotify: React.FC = () => {
     cursor: "pointer",
     outline: "none",
     // Add more styles as desired
+  };
+
+  const calculateGenrePercentage = () => {
+    const totalSongs = genreData.reduce((sum, genre) => sum + genre.count, 0);
+
+    return genreData.map((genre) => ({
+      genre: genre.genre,
+      percentage: (genre.count / totalSongs) * 100,
+    }));
+  };
+
+  type GenreData = {
+    genre: string;
+    count: number;
+  };
+
+  const formatGenreData = (fileData: string): GenreData[] => {
+    try {
+      const convertedData = fileData.replace(/'/g, '"');
+      const parsedData: [string, string[]][] = JSON.parse(convertedData);
+
+      const formattedData = parsedData
+        .slice(2, -1) // Exclude the first two genres and the last genre
+        .map(([genre, songs]) => ({
+          genre,
+          count: songs.length,
+        }));
+
+      return formattedData;
+    } catch (error) {
+      console.error("Error parsing file data:", error);
+      return [];
+    }
   };
 
 
@@ -96,13 +131,37 @@ const ChartSpotify: React.FC = () => {
         });
 
         return monthlyData;
+      case "genres":
+        return calculateGenrePercentage();
       default:
         return [];
     }
   }
 
-  const timestamps = filteredData.map((entry) => entry.date);
-  const values = filteredData.map((entry) => entry.value);
+  useEffect(() => {
+    const fetchGenreData = async () => {
+      try {
+        const response = await fetch(`LOG_SPOTIPY_PLAYLIST_DATA`);
+        const jsonData = await response.text();
+
+        const genreCounts = formatGenreData(jsonData);
+
+        setGenreData(genreCounts);
+      } catch (error) {
+        console.error("Error fetching genre data:", error);
+      }
+    };
+
+    if (chartType === "genres") {
+      fetchGenreData();
+      setShowGenres(true);
+    } else {
+      setShowGenres(false);
+    }
+  }, [chartType]);
+
+  const timestamps = filteredData.map((entry: any) => entry.date);
+  const values = filteredData.map((entry: any) => entry.value);
 
   const trace = {
     x: timestamps,
@@ -120,7 +179,13 @@ const ChartSpotify: React.FC = () => {
     },
     paper_bgcolor: "#1f1f1f",
     xaxis: { title: "Date" },
-    yaxis: { title: "Average Year", side: "right", autorange: true, fixedrange: true, tickformat: ".2f" },
+    yaxis: {
+      title: "Average Year",
+      side: "right",
+      autorange: true,
+      fixedrange: true,
+      tickformat: ".2f",
+    },
     autosize: true,
     width: chartWidth,
     legend: { y: 1.15, orientation: "h" },
@@ -134,7 +199,10 @@ const ChartSpotify: React.FC = () => {
             ...buttonStyle,
             background: chartType === "daily" ? "rgba(255, 255, 255, 0.2)" : "transparent",
           }}
-          onClick={() => setChartType("daily")}
+          onClick={() => {
+            setChartType("daily");
+            setShowGenres(false);
+          }}
         >
           Daily
         </button>
@@ -143,7 +211,10 @@ const ChartSpotify: React.FC = () => {
             ...buttonStyle,
             background: chartType === "weekly" ? "rgba(255, 255, 255, 0.2)" : "transparent",
           }}
-          onClick={() => setChartType("weekly")}
+          onClick={() => {
+            setChartType("weekly");
+            setShowGenres(false);
+          }}
         >
           Weekly
         </button>
@@ -152,12 +223,48 @@ const ChartSpotify: React.FC = () => {
             ...buttonStyle,
             background: chartType === "monthly" ? "rgba(255, 255, 255, 0.2)" : "transparent",
           }}
-          onClick={() => setChartType("monthly")}
+          onClick={() => {
+            setChartType("monthly");
+            setShowGenres(false);
+          }}
         >
           Monthly
         </button>
+        <button
+          style={{
+            ...buttonStyle,
+            background: chartType === "genres" ? "rgba(255, 255, 255, 0.2)" : "transparent",
+          }}
+          onClick={() => {
+            setChartType("genres");
+          }}
+        >
+          Genres
+        </button>
       </div>
-      <Plot data={[trace]} layout={layout} />
+      {showGenres && (
+        <Plot
+          data={[
+            {
+              type: "pie",
+              labels: genreData.map((genre) => genre.genre),
+              values: genreData.map((genre) => genre.count),
+              textinfo: "label+percent",
+              hoverinfo: "label+percent",
+            },
+          ]}
+          layout={{
+            title: "Genre Distribution",
+            plot_bgcolor: "#1f1f1f",
+            paper_bgcolor: "#1f1f1f",
+            font: {
+              color: "white",
+            },
+            width: chartWidth,
+          }}
+        />
+      )}
+      {!showGenres && <Plot data={[trace]} layout={layout} />}
     </div>
   );
 };
