@@ -26,3 +26,5 @@ html/weather-graph.html
 node_modules
 .cache
 public/steps.md
+public/*.log
+public/LOG_*

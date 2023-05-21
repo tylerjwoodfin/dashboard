@@ -4,7 +4,7 @@ import moment from "moment";
 import { Layout } from "plotly.js";
 import { IWeatherData, convertToTemperatureInFahrenheit } from "./App"
 
-const Chart: React.FC = () => {
+const ChartWeather: React.FC = () => {
   const [data, setData] = useState<IWeatherData[]>([]);
   const [chartWidth, setChartWidth] = useState<number>(0);
 
@@ -109,4 +109,4 @@ const Chart: React.FC = () => {
   return <Plot data={[trace1, trace2]} layout={layout} />;
 };
 
-export default Chart;
+export default ChartWeather;

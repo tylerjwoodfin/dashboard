@@ -1,8 +1,23 @@
 import React, { useEffect, useState } from "react";
-import Chart from "./chart";
+import ChartWeather from "./ChartWeather";
 import moment from "moment";
 import "./styles.scss";
 import { Tab, Tabs } from "@mui/material";
+import ChartSpotify from "./ChartSpotify";
+import { styled } from "@mui/system";
+
+// Custom styles for the active and inactive tabs
+const StyledTab = styled(Tab)(({ theme }) => ({
+  "&.Mui-selected": {
+    color: theme.palette.primary.main,
+  },
+  "&.Mui-selected::after": {
+    content: '""',
+    display: "block",
+    height: "3px",
+    background: theme.palette.primary.main,
+  },
+}));
 
 export interface IWeatherData {
   temperature: number;
@@ -115,7 +130,7 @@ const App: React.FC = () => {
     fetchStepsData();
     fetchWeatherData();
   }, []);
-
+  
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-title">Dashboard</h1>
@@ -167,9 +182,9 @@ const App: React.FC = () => {
         />
       </Tabs>
       <div className="chart-container">
-        {value === 0 && <Chart />}
-        {value === 1 && <Chart />}
-        {value === 2 && <Chart />}
+        {value === 0 && <ChartWeather />}
+        {value === 1 && <ChartSpotify />}
+        {value === 2 && <ChartWeather />}
       </div>
     </div>
   );
