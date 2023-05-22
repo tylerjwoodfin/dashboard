@@ -92,7 +92,7 @@ const App: React.FC = () => {
     fetch("steps.md")
       .then((response) => response.text())
       .then((data) => {
-        const steps = Number(data.split(" ")[0]);
+        const steps = parseInt(data.split(" ")[0].replace(/,/g, ''), 10);
         setSteps(steps + ` (${steps / 50}%)`);
       })
       .catch((error) => console.error("Error fetching steps data:", error));
@@ -130,7 +130,7 @@ const App: React.FC = () => {
     fetchStepsData();
     fetchWeatherData();
   }, []);
-  
+
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-title">Dashboard</h1>
