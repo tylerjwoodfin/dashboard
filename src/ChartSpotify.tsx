@@ -19,7 +19,6 @@ const ChartSpotify: React.FC = () => {
     background: "transparent",
     cursor: "pointer",
     outline: "none",
-    // Add more styles as desired
   };
 
   const calculateGenrePercentage = () => {

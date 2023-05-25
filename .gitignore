@@ -28,3 +28,4 @@ node_modules
 public/steps.md
 public/*.log
 public/LOG_*
+public/log_*
