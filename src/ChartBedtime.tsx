@@ -129,7 +129,7 @@ const ChartBedtime: React.FC = () => {
     }
 
 
-    const timestamps = filteredData.map((entry) => moment(Object.keys(entry)[0]).format("MM/DD"));
+    const timestamps = filteredData.map((entry) => moment(Object.keys(entry)[0]).format("ddd<br>MM/DD"));
     const bedtimes = filteredData.map((entry) => {
         const time = moment(Object.values(entry)[0].bedtime, "HH:mm");
         const decimalTime = time.hours() + time.minutes() / 60;
@@ -142,10 +142,11 @@ const ChartBedtime: React.FC = () => {
         return decimalTime;
     });
 
-
-    console.log("Data", bedtimes);
-    console.log("Data", wakeups);
-
+    const formatTime = (time: any) => {
+        const hours = Math.floor(time);
+        const minutes = Math.round((time - hours) * 60).toString().padStart(2, '0');
+        return `${hours.toString().padStart(2, '0')}:${minutes}`;
+    };
 
     const bedtimeTrace = {
         x: timestamps,
@@ -153,6 +154,8 @@ const ChartBedtime: React.FC = () => {
         mode: "lines+markers",
         name: "Bedtime",
         yaxis: "y1",
+        hovertemplate: "%{x}<br>Bedtime: %{customdata}",
+        customdata: bedtimes.map(formatTime),
     };
 
     const wakeupTrace = {
@@ -161,7 +164,10 @@ const ChartBedtime: React.FC = () => {
         mode: "lines+markers",
         name: "Wakeup",
         yaxis: "y1",
+        hovertemplate: "%{x}<br>Wakeup: %{customdata}",
+        customdata: wakeups.map(formatTime),
     };
+
 
     const layout: Partial<Layout> = {
         title: "Bedtime and Wakeup Over Time",
@@ -176,7 +182,10 @@ const ChartBedtime: React.FC = () => {
             side: "right",
             autorange: true,
             fixedrange: false,
-            tickformat: "%H:%M", // Use 24-hour format
+            tickformat: "%H:%M",
+            tickmode: "array",
+            tickvals: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+            ticktext: ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"],
         },
         autosize: true,
         width: chartWidth,
