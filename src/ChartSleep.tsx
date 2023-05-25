@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Plot from "react-plotly.js";
 import moment from "moment";
-import { Layout } from "plotly.js";
+import { Layout, Shape } from "plotly.js";
 
-const ChartBedtime: React.FC = () => {
+const ChartSleep: React.FC = () => {
     const [data, setData] = useState<{ [date: string]: { bedtime: string; wakeup: string } }[]>([]);
     const [chartWidth, setChartWidth] = useState<number>(0);
     const [chartType, setChartType] = useState<"daily" | "weekly" | "monthly">("daily");
@@ -148,6 +148,20 @@ const ChartBedtime: React.FC = () => {
         return `${hours.toString().padStart(2, '0')}:${minutes}`;
     };
 
+    const calculateTimeDifference = (bedtime: number, wakeup: number) => {
+        let difference = wakeup - bedtime;
+        if (difference < 0) {
+            difference += 24; // Add 24 hours to handle cases where wakeup is on the next day
+        }
+        return difference.toFixed(1);
+    };
+
+    const isWeekend = (dateString: string) => {
+        const date = moment(dateString, "ddd<br>MM/DD");
+        const dayOfWeek = date.day();
+        return dayOfWeek === 6 || dayOfWeek === 0; // Saturday is 6, Sunday is 0
+    };
+
     const bedtimeTrace = {
         x: timestamps,
         y: bedtimes,
@@ -168,9 +182,17 @@ const ChartBedtime: React.FC = () => {
         customdata: wakeups.map(formatTime),
     };
 
+    const timeDifferenceTrace = {
+        x: timestamps,
+        y: filteredData.map((entry, index) => calculateTimeDifference(bedtimes[index], wakeups[index])),
+        mode: "lines+markers",
+        name: "Hours Slept",
+        yaxis: "y1",
+        hovertemplate: "%{x}<br>Hours Slept: %{y} hours",
+    };
 
     const layout: Partial<Layout> = {
-        title: "Bedtime and Wakeup Over Time",
+        title: "Sleep Over Time",
         plot_bgcolor: "#1f1f1f",
         font: {
             color: "white",
@@ -190,6 +212,23 @@ const ChartBedtime: React.FC = () => {
         autosize: true,
         width: chartWidth,
         legend: { y: 1.15, orientation: "h" },
+        barmode: "stack",
+        shapes: timestamps.map((timestamp, index) => {
+            return {
+                type: "rect",
+                xref: "x",
+                yref: "paper",
+                x0: index - 0.5,
+                x1: index + 0.5,
+                y0: 0,
+                y1: 1,
+                fillcolor: isWeekend(timestamp) ? '#6A1B9A' : '#1f1f1f',
+                opacity: 0.2,
+                line: {
+                    width: 0,
+                },
+            };
+        }),
     };
 
     return (
@@ -224,11 +263,11 @@ const ChartBedtime: React.FC = () => {
                 </button>
             </div>
             <Plot
-                data={[bedtimeTrace, wakeupTrace]}
+                data={[bedtimeTrace, wakeupTrace, timeDifferenceTrace]}
                 layout={layout}
             />
         </div>
     );
 };
 
-export default ChartBedtime;
+export default ChartSleep;

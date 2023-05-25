@@ -5,7 +5,7 @@ import "./styles.scss";
 import { Tab, Tabs } from "@mui/material";
 import ChartSpotify from "./ChartSpotify";
 import { styled } from "@mui/system";
-import ChartBedtime from "./ChartBedtime";
+import ChartSleep from "./ChartSleep";
 
 // Custom styles for the active and inactive tabs
 const StyledTab = styled(Tab)(({ theme }) => ({
@@ -178,14 +178,14 @@ const App: React.FC = () => {
           style={value === 1 ? styles.tab.active : styles.tab.inactive}
         />
         <Tab
-          label="Bedtime"
+          label="Sleep"
           style={value === 2 ? styles.tab.active : styles.tab.inactive}
         />
       </Tabs>
       <div className="chart-container">
         {value === 0 && <ChartWeather />}
         {value === 1 && <ChartSpotify />}
-        {value === 2 && <ChartBedtime />}
+        {value === 2 && <ChartSleep />}
       </div>
     </div>
   );
