@@ -184,7 +184,7 @@ const ChartSleep: React.FC = () => {
 
     const timeDifferenceTrace = {
         x: timestamps,
-        y: filteredData.map((entry, index) => calculateTimeDifference(bedtimes[index], wakeups[index])),
+        y: filteredData.map((entry, index) => calculateTimeDifference(bedtimes[index-1], wakeups[index])),
         mode: "lines+markers",
         name: "Hours Slept",
         yaxis: "y1",
