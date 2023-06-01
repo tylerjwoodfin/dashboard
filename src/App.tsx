@@ -59,6 +59,7 @@ const App: React.FC = () => {
   const [humidityOut, setHumidityOut] = useState<string>("");
   const [steps, setSteps] = useState<string>("");
   const [value, setValue] = useState<number>(0);
+  const [updatedAt, setUpdatedAt] = useState<string>("");
 
   const determineTemperatureColor = (temperature: string): string => {
     const value = parseFloat(temperature);
@@ -121,6 +122,8 @@ const App: React.FC = () => {
           Math.round(weatherData.humidity * 10) / 10 + "% Inside"
         );
         setHumidityOut(weatherData.weather_data.current_humidity + "% Outside");
+
+        setUpdatedAt(moment().format('YYYY-MM-DD hh:mm:ss A'))
       })
       .catch((error) => {
         console.error("Error fetching weather data:", error);
@@ -135,6 +138,7 @@ const App: React.FC = () => {
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-title">Dashboard</h1>
+      <h3 className="dashboard-updated">(<span className="dashboard-updated date">{updatedAt}</span>)</h3>
       <div className="stats-container">
         <div className="stat">
           <h2>Temperature</h2>

@@ -18,7 +18,18 @@ body {
 .dashboard-title {
   text-align: center;
   padding-top: 20px;
+  margin-bottom: 5px;
+}
+
+.dashboard-updated {
+  text-align: center;
+  font-size: initial;
+  margin-top: 0px;
   margin-bottom: 50px;
+  .date {
+    // kept in separate property to allow future expansion
+    display: contents;
+  }
 }
 
 .stats-container {
