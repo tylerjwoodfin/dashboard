@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Plot from "react-plotly.js";
 import moment from "moment";
-import { Layout, Shape } from "plotly.js";
+import { Layout } from "plotly.js";
 
 const ChartSleep: React.FC = () => {
     const [data, setData] = useState<{ [date: string]: { bedtime: string; wakeup: string } }[]>([]);
@@ -184,7 +184,7 @@ const ChartSleep: React.FC = () => {
 
     const timeDifferenceTrace = {
         x: timestamps,
-        y: filteredData.map((entry, index) => calculateTimeDifference(bedtimes[index-1], wakeups[index])),
+        y: filteredData.map((entry, index) => calculateTimeDifference(bedtimes[index - 1], wakeups[index])),
         mode: "lines+markers",
         name: "Hours Slept",
         yaxis: "y1",
@@ -198,7 +198,7 @@ const ChartSleep: React.FC = () => {
             color: "white",
         },
         paper_bgcolor: "#1f1f1f",
-        xaxis: { title: "Date" },
+        xaxis: { title: "Date", tickmode: "auto", nticks: 10 },
         yaxis: {
             title: "Time",
             side: "right",
