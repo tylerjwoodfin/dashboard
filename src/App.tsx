@@ -92,10 +92,11 @@ const App: React.FC = () => {
   };
 
   const fetchStepsData = () => {
-    fetch("steps.md")
+    fetch("log_steps.csv")
       .then((response) => response.text())
       .then((data) => {
-        const steps = parseInt(data.split(" ")[0].replace(/,/g, ''), 10);
+        const dataArray = data.split(",")
+        const steps = parseInt(dataArray[dataArray.length - 1]) || -1
         setSteps(steps + ` (${steps / 50}%)`);
       })
       .catch((error) => console.error("Error fetching steps data:", error));

@@ -23,7 +23,7 @@ const ChartSleep: React.FC = () => {
         try {
             const lines = csvData.trim().split("\n");
             const headers = lines[0].split(",");
-            const bedtimeIndex = headers.indexOf("time\r");
+            const bedtimeIndex = headers.indexOf("time");
             const typeIndex = headers.indexOf("bedtime");
             const dateIndex = headers.indexOf("date");
 
